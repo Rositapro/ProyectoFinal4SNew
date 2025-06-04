@@ -38,16 +38,20 @@
             btnExport = new Button();
             cmbClassFilter = new ComboBox();
             btnFilterClass = new Button();
+            textBox1 = new TextBox();
+            txtPlainText = new TextBox();
+            cmbViewOption = new ComboBox();
+            lblView = new Label();
             ((System.ComponentModel.ISupportInitialize)dgvData).BeginInit();
             SuspendLayout();
             // 
             // btnOpen
             // 
-            btnOpen.Font = new Font("Yu Gothic UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnOpen.Location = new Point(310, 574);
+            btnOpen.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnOpen.Location = new Point(13, 20);
             btnOpen.Margin = new Padding(4, 5, 4, 5);
             btnOpen.Name = "btnOpen";
-            btnOpen.Size = new Size(146, 60);
+            btnOpen.Size = new Size(112, 34);
             btnOpen.TabIndex = 1;
             btnOpen.Text = "Open";
             btnOpen.UseVisualStyleBackColor = true;
@@ -56,7 +60,7 @@
             // dgvData
             // 
             dgvData.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvData.Location = new Point(310, 75);
+            dgvData.Location = new Point(4, 124);
             dgvData.Margin = new Padding(4, 5, 4, 5);
             dgvData.Name = "dgvData";
             dgvData.RowHeadersWidth = 62;
@@ -66,14 +70,14 @@
             // cmbDeleteType
             // 
             cmbDeleteType.FormattingEnabled = true;
-            cmbDeleteType.Location = new Point(36, 158);
+            cmbDeleteType.Location = new Point(11, 618);
             cmbDeleteType.Name = "cmbDeleteType";
             cmbDeleteType.Size = new Size(116, 33);
             cmbDeleteType.TabIndex = 12;
             // 
             // btnDelete
             // 
-            btnDelete.Location = new Point(191, 158);
+            btnDelete.Location = new Point(133, 618);
             btnDelete.Name = "btnDelete";
             btnDelete.Size = new Size(112, 34);
             btnDelete.TabIndex = 13;
@@ -83,7 +87,7 @@
             // 
             // btnClearData
             // 
-            btnClearData.Location = new Point(191, 101);
+            btnClearData.Location = new Point(133, 658);
             btnClearData.Name = "btnClearData";
             btnClearData.Size = new Size(112, 34);
             btnClearData.TabIndex = 14;
@@ -93,10 +97,10 @@
             // 
             // btnSave
             // 
-            btnSave.Location = new Point(478, 574);
+            btnSave.Location = new Point(142, 20);
             btnSave.Margin = new Padding(4, 5, 4, 5);
             btnSave.Name = "btnSave";
-            btnSave.Size = new Size(141, 55);
+            btnSave.Size = new Size(112, 34);
             btnSave.TabIndex = 15;
             btnSave.Text = "Save";
             btnSave.UseVisualStyleBackColor = true;
@@ -105,14 +109,14 @@
             // cmbExportFormat
             // 
             cmbExportFormat.FormattingEnabled = true;
-            cmbExportFormat.Location = new Point(945, 574);
+            cmbExportFormat.Location = new Point(639, 618);
             cmbExportFormat.Name = "cmbExportFormat";
             cmbExportFormat.Size = new Size(144, 33);
             cmbExportFormat.TabIndex = 16;
             // 
             // btnExport
             // 
-            btnExport.Location = new Point(1102, 572);
+            btnExport.Location = new Point(796, 616);
             btnExport.Name = "btnExport";
             btnExport.Size = new Size(112, 34);
             btnExport.TabIndex = 17;
@@ -123,14 +127,14 @@
             // cmbClassFilter
             // 
             cmbClassFilter.FormattingEnabled = true;
-            cmbClassFilter.Location = new Point(907, 34);
+            cmbClassFilter.Location = new Point(617, 14);
             cmbClassFilter.Name = "cmbClassFilter";
             cmbClassFilter.Size = new Size(182, 33);
             cmbClassFilter.TabIndex = 18;
             // 
             // btnFilterClass
             // 
-            btnFilterClass.Location = new Point(1095, 32);
+            btnFilterClass.Location = new Point(805, 12);
             btnFilterClass.Name = "btnFilterClass";
             btnFilterClass.Size = new Size(112, 34);
             btnFilterClass.TabIndex = 19;
@@ -138,11 +142,51 @@
             btnFilterClass.UseVisualStyleBackColor = true;
             btnFilterClass.Click += btnFilterClass_Click;
             // 
+            // textBox1
+            // 
+            textBox1.Location = new Point(1259, 254);
+            textBox1.Name = "textBox1";
+            textBox1.Size = new Size(8, 31);
+            textBox1.TabIndex = 20;
+            // 
+            // txtPlainText
+            // 
+            txtPlainText.Location = new Point(945, 124);
+            txtPlainText.Multiline = true;
+            txtPlainText.Name = "txtPlainText";
+            txtPlainText.ScrollBars = ScrollBars.Vertical;
+            txtPlainText.Size = new Size(721, 477);
+            txtPlainText.TabIndex = 21;
+            txtPlainText.Visible = false;
+            // 
+            // cmbViewOption
+            // 
+            cmbViewOption.FormattingEnabled = true;
+            cmbViewOption.Location = new Point(72, 77);
+            cmbViewOption.Name = "cmbViewOption";
+            cmbViewOption.Size = new Size(182, 33);
+            cmbViewOption.TabIndex = 22;
+            // 
+            // lblView
+            // 
+            lblView.AutoSize = true;
+            lblView.Location = new Point(13, 77);
+            lblView.Name = "lblView";
+            lblView.Size = new Size(49, 25);
+            lblView.TabIndex = 23;
+            lblView.Text = "View";
+            // 
             // FrmDataSet
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1237, 760);
+            BackColor = SystemColors.InactiveCaption;
+            BackgroundImageLayout = ImageLayout.Stretch;
+            ClientSize = new Size(1776, 760);
+            Controls.Add(lblView);
+            Controls.Add(cmbViewOption);
+            Controls.Add(txtPlainText);
+            Controls.Add(textBox1);
             Controls.Add(btnFilterClass);
             Controls.Add(cmbClassFilter);
             Controls.Add(btnExport);
@@ -158,6 +202,7 @@
             Text = "Form2";
             ((System.ComponentModel.ISupportInitialize)dgvData).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -171,5 +216,9 @@
         private Button btnExport;
         private ComboBox cmbClassFilter;
         private Button btnFilterClass;
+        private TextBox textBox1;
+        private TextBox txtPlainText;
+        private ComboBox cmbViewOption;
+        private Label lblView;
     }
 }
