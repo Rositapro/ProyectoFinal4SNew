@@ -10,6 +10,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Diagnostics;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Kernel.Pdf.Canvas;
+using System.IO;
+using MailKit.Net.Smtp;
+using MimeKit;
+using System.IO;
 
 namespace ProyectoFinal4S
 {
@@ -40,12 +48,13 @@ namespace ProyectoFinal4S
             cmbClassFilter.SelectedIndex = 0; // Por defecto "TODOS"
 
             cmbExportFormat.Items.Clear();
-            cmbExportFormat.Items.AddRange(new string[] { "CSV", "TXT", "JSON", "XML" });
+            cmbExportFormat.Items.AddRange(new string[] { "CSV", "TXT", "JSON", "XML", "PDF" });
             cmbExportFormat.SelectedIndex = 0;
 
             cmbDeleteType.Items.Clear();
             cmbDeleteType.Items.AddRange(new string[] { "Fila", "Columna" });
             cmbDeleteType.SelectedIndex = 0;
+
         }
 
         // Método para convertir los datos a texto plano
@@ -174,6 +183,69 @@ namespace ProyectoFinal4S
 
         private void btnExport_Click(object sender, EventArgs e)
         {
+            //if (cmbExportFormat.SelectedItem == null)
+            //    return;
+
+            //string formato = cmbExportFormat.SelectedItem.ToString();
+
+            //SaveFileDialog saveFileDialog = new SaveFileDialog();
+            //switch (formato)
+            //{
+            //    case "CSV":
+            //        saveFileDialog.Filter = "CSV files (*.csv)|*.csv";
+            //        saveFileDialog.Title = "Exportar a CSV";
+            //        break;
+            //    case "TXT":
+            //        saveFileDialog.Filter = "TXT files (*.txt)|*.txt";
+            //        saveFileDialog.Title = "Exportar a TXT";
+            //        break;
+            //    case "JSON":
+            //        saveFileDialog.Filter = "JSON files (*.json)|*.json";
+            //        saveFileDialog.Title = "Exportar a JSON";
+            //        break;
+            //    case "XML":
+            //        saveFileDialog.Filter = "XML files (*.xml)|*.xml";
+            //        saveFileDialog.Title = "Exportar a XML";
+            //        break;
+            //}
+
+            //if (saveFileDialog.ShowDialog() != DialogResult.OK)
+            //    return;
+
+            //string ruta = saveFileDialog.FileName;
+
+            //try
+            //{
+            //    switch (formato)
+            //    {
+            //        case "CSV":
+            //            GuardarArchivoCSV(ruta);
+            //            break;
+            //        case "TXT":
+            //            GuardarArchivoTXT(ruta);
+            //            break;
+            //        case "JSON":
+            //            ExportarAJSON(ruta);
+            //            break;
+            //        case "XML":
+            //            ExportarAXML(ruta);
+            //            break;
+            //    }
+            //    MessageBox.Show($"Archivo exportado correctamente en formato {formato}.");
+
+            //    // Abrir el archivo con la aplicación predeterminada
+            //    Process.Start(new ProcessStartInfo()
+            //    {
+            //        FileName = ruta,
+            //        UseShellExecute = true
+            //    });
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show("Error exportando archivo: " + ex.Message);
+            //}
+
+
             if (cmbExportFormat.SelectedItem == null)
                 return;
 
@@ -198,6 +270,10 @@ namespace ProyectoFinal4S
                     saveFileDialog.Filter = "XML files (*.xml)|*.xml";
                     saveFileDialog.Title = "Exportar a XML";
                     break;
+                case "PDF":
+                    saveFileDialog.Filter = "PDF files (*.pdf)|*.pdf";
+                    saveFileDialog.Title = "Exportar a PDF";
+                    break;
             }
 
             if (saveFileDialog.ShowDialog() != DialogResult.OK)
@@ -221,21 +297,20 @@ namespace ProyectoFinal4S
                     case "XML":
                         ExportarAXML(ruta);
                         break;
+                    case "PDF":
+                        ExportarAPDF(ruta);
+                        break;
                 }
-                MessageBox.Show($"Archivo exportado correctamente en formato {formato}.");
 
-                // Abrir el archivo con la aplicación predeterminada
-                Process.Start(new ProcessStartInfo()
-                {
-                    FileName = ruta,
-                    UseShellExecute = true
-                });
+                // Enviar por correo (si es necesario)
+                EnviarCorreo("destinatario@example.com", "Archivo Exportado", "Aquí está el archivo PDF.", ruta);
+
+                MessageBox.Show($"Archivo exportado correctamente en formato {formato}.");
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error exportando archivo: " + ex.Message);
             }
-
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -420,6 +495,85 @@ namespace ProyectoFinal4S
                 dgvData.Rows.Clear();
                 dgvData.Columns.Clear();
                 allRows.Clear();
+            }
+        }
+        private void ExportarAPDF(string ruta)
+        {
+            try
+            {
+                // Crear un nuevo documento PDF
+                using (PdfWriter writer = new PdfWriter(ruta))
+                {
+                    using (PdfDocument pdf = new PdfDocument(writer))
+                    {
+                        Document document = new Document(pdf);
+
+                        // Crear una tabla en el PDF
+                        Table table = new Table(dgvData.Columns.Count);
+
+                        // Agregar encabezados de columnas
+                        foreach (DataGridViewColumn col in dgvData.Columns)
+                        {
+                            table.AddCell(new Cell().Add(new Paragraph(col.HeaderText)));
+                        }
+
+                        // Agregar las filas de datos
+                        foreach (DataGridViewRow row in dgvData.Rows)
+                        {
+                            if (!row.IsNewRow)  // Evitar la fila vacía
+                            {
+                                foreach (DataGridViewCell cell in row.Cells)
+                                {
+                                    table.AddCell(new Cell().Add(new Paragraph(cell.Value?.ToString() ?? "")));
+                                }
+                            }
+                        }
+
+                        // Agregar la tabla al documento PDF
+                        document.Add(table);
+                    }
+                }
+
+                MessageBox.Show("PDF exportado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al exportar a PDF: " + ex.Message);
+            }
+        }
+
+        // Función para enviar correo con archivo adjunto usando MailKit
+        private void EnviarCorreo(string toEmail, string subject, string body, string filePath)
+        {
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("Rosalinda", "rosalindacedillo2017@gmail.com"));
+            message.To.Add(new MailboxAddress("", toEmail));
+            message.Subject = subject;
+
+            var bodyBuilder = new BodyBuilder { TextBody = body };
+
+            // Adjuntar el archivo PDF
+            bodyBuilder.Attachments.Add(filePath);
+
+            message.Body = bodyBuilder.ToMessageBody();
+
+            try
+            {
+                using (var client = new SmtpClient())
+                {
+                    client.Connect("smtp.gmail.com", 587, false);
+                    client.Authenticate("rosalindacedillo2017@gmail.com", "rqcs laqq upjg rypk"); // Usa la contraseña de aplicación
+
+                    // Enviar el correo
+                    client.Send(message);
+                    client.Disconnect(true);
+                }
+
+                MessageBox.Show("Correo enviado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al enviar el correo: " + ex.Message);
             }
         }
     }

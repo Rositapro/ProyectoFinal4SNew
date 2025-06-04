@@ -42,6 +42,7 @@
             txtPlainText = new TextBox();
             cmbViewOption = new ComboBox();
             lblView = new Label();
+            cmbSortBy = new ComboBox();
             ((System.ComponentModel.ISupportInitialize)dgvData).BeginInit();
             SuspendLayout();
             // 
@@ -176,6 +177,14 @@
             lblView.TabIndex = 23;
             lblView.Text = "View";
             // 
+            // cmbSortBy
+            // 
+            cmbSortBy.FormattingEnabled = true;
+            cmbSortBy.Location = new Point(270, 77);
+            cmbSortBy.Name = "cmbSortBy";
+            cmbSortBy.Size = new Size(182, 33);
+            cmbSortBy.TabIndex = 24;
+            // 
             // FrmDataSet
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -183,6 +192,7 @@
             BackColor = SystemColors.InactiveCaption;
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(1776, 760);
+            Controls.Add(cmbSortBy);
             Controls.Add(lblView);
             Controls.Add(cmbViewOption);
             Controls.Add(txtPlainText);
@@ -220,5 +230,6 @@
         private TextBox txtPlainText;
         private ComboBox cmbViewOption;
         private Label lblView;
+        private ComboBox cmbSortBy;
     }
 }
