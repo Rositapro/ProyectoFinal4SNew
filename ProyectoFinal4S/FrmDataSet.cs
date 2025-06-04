@@ -15,28 +15,22 @@ namespace ProyectoFinal4S
 {
     public partial class FrmDataSet : Form
     {
-        // Lista para guardar todas las filas leídas del CSV quesos
+        // Lista para guardar todas las filas leídas del CSV 
+
         private List<string[]> allRows = new List<string[]>();
         public FrmDataSet()
         {
             InitializeComponent();
-            //// Asociar eventos
-
             // Evento para cambiar vista
             cmbViewOption.Items.Clear();
             cmbViewOption.Items.AddRange(new string[] { "Tabla", "Texto Plano" });
             cmbViewOption.SelectedIndex = 0; // Por defecto tabla
             cmbViewOption.SelectedIndexChanged += cmbViewOption_SelectedIndexChanged;
 
-            // Por defecto el TextBox de texto plano está oculto
             txtPlainText.Visible = false;
-
 
             this.Load += Form2_Load;
             btnFilterClass.Click += btnFilterClass_Click;
-            //btnOpen.Click += btnOpen_Click;
-            //btnSave.Click += btnSave_Click;
-            //btnExport.Click += btnExport_Click;
         }
         // Evento Load: llenar ComboBox con opciones de clase
         private void Form2_Load(object sender, EventArgs e)
@@ -55,7 +49,7 @@ namespace ProyectoFinal4S
         }
 
         // Método para convertir los datos a texto plano
-        private string ConvertToPlainText(List<string[]> rows)
+        private string ConvertToPlainText()
         {
             var sb = new StringBuilder();
 
@@ -64,27 +58,12 @@ namespace ProyectoFinal4S
             sb.AppendLine(string.Join("\t", headers));  // Tab para separar columnas
 
             // Filas
-            foreach (var row in rows)
+            foreach (var row in allRows)
             {
                 sb.AppendLine(string.Join("\t", row));
             }
-
             return sb.ToString();
-            //var sb = new StringBuilder();
-
-            //// Encabezados
-            //var headers = dgvData.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText);
-            //sb.AppendLine(string.Join("\t", headers));  // separa con tabuladores
-
-            //// Filas
-            //foreach (var row in allRows)
-            //{
-            //    sb.AppendLine(string.Join("\t", row));
-            //}
-
-            //return sb.ToString();
         }
-
         // Evento cambio de vista
         private void cmbViewOption_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -92,30 +71,15 @@ namespace ProyectoFinal4S
 
             if (option == "Texto Plano")
             {
-                // Aquí pasamos las filas filtradas (o todas las filas) al método
-                txtPlainText.Text = ConvertToPlainText(allRows);  // Aquí le pasamos las filas (allRows)
+                txtPlainText.Text = ConvertToPlainText();
                 txtPlainText.Visible = true;
                 dgvData.Visible = false;
             }
-            else // Mostrar como tabla
+            else if (option == "Tabla")
             {
                 txtPlainText.Visible = false;
                 dgvData.Visible = true;
             }
-
-            //string option = cmbViewOption.SelectedItem.ToString();
-
-            //if (option == "Texto Plano")
-            //{
-            //    txtPlainText.Text = ConvertToPlainText();
-            //    txtPlainText.Visible = true;
-            //    dgvData.Visible = false;
-            //}
-            //else // Tabla
-            //{
-            //    txtPlainText.Visible = false;
-            //    dgvData.Visible = true;
-            //}
         }
         private void btnOpen_Click(object sender, EventArgs e)
         {
@@ -192,51 +156,20 @@ namespace ProyectoFinal4S
                 return;
             }
 
-            // Filtrar los datos de allRows según el valor seleccionado en el filtro
+            // Mostrar todas las filas si seleccionó "TODOS"
+            if (filtroSeleccionado.Equals("TODOS", StringComparison.OrdinalIgnoreCase))
+            {
+                DisplayRows(allRows);
+                return;
+            }
+
+            // Filtrar filas que coincidan exactamente con el filtro seleccionado (insensible a mayúsculas)
             var filasFiltradas = allRows.Where(row =>
                 row.Length > indexClass &&
                 row[indexClass].Equals(filtroSeleccionado, StringComparison.OrdinalIgnoreCase)
             ).ToList();
 
-            // Convertir a texto plano y mostrarlo en el TextBox
-            txtPlainText.Text = ConvertToPlainText(filasFiltradas);  // Pasamos las filas filtradas
-
-            // Actualizar el DataGridView con las filas filtradas
             DisplayRows(filasFiltradas);
-
-            //string filtroSeleccionado = cmbClassFilter.SelectedItem.ToString();
-
-            //// Buscar índice de la columna "class"
-            //int indexClass = -1;
-            //foreach (DataGridViewColumn col in dgvData.Columns)
-            //{
-            //    if (col.HeaderText.Equals("class", StringComparison.OrdinalIgnoreCase))
-            //    {
-            //        indexClass = col.Index;
-            //        break;
-            //    }
-            //}
-
-            //if (indexClass == -1)
-            //{
-            //    MessageBox.Show("No se encontró la columna 'class'.");
-            //    return;
-            //}
-
-            //// Mostrar todas las filas si seleccionó "TODOS"
-            //if (filtroSeleccionado.Equals("TODOS", StringComparison.OrdinalIgnoreCase))
-            //{
-            //    DisplayRows(allRows);
-            //    return;
-            //}
-
-            //// Filtrar filas que coincidan exactamente con el filtro seleccionado (insensible a mayúsculas)
-            //var filasFiltradas = allRows.Where(row =>
-            //    row.Length > indexClass &&
-            //    row[indexClass].Equals(filtroSeleccionado, StringComparison.OrdinalIgnoreCase)
-            //).ToList();
-
-            //DisplayRows(filasFiltradas);
         }
 
         private void btnExport_Click(object sender, EventArgs e)
