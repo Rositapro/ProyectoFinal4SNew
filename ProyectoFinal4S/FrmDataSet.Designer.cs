@@ -44,6 +44,7 @@
             lblView = new Label();
             cmbSortBy = new ComboBox();
             btnEnviarArchivo = new Button();
+            treeView = new TreeView();
             ((System.ComponentModel.ISupportInitialize)dgvData).BeginInit();
             SuspendLayout();
             // 
@@ -151,11 +152,11 @@
             // 
             // txtPlainText
             // 
-            txtPlainText.Location = new Point(945, 124);
+            txtPlainText.Location = new Point(948, 14);
             txtPlainText.Multiline = true;
             txtPlainText.Name = "txtPlainText";
             txtPlainText.ScrollBars = ScrollBars.Vertical;
-            txtPlainText.Size = new Size(721, 477);
+            txtPlainText.Size = new Size(721, 380);
             txtPlainText.TabIndex = 21;
             txtPlainText.Visible = false;
             // 
@@ -194,6 +195,13 @@
             btnEnviarArchivo.UseVisualStyleBackColor = true;
             btnEnviarArchivo.Click += btnEnviarArchivo_Click;
             // 
+            // treeView
+            // 
+            treeView.Location = new Point(948, 432);
+            treeView.Name = "treeView";
+            treeView.Size = new Size(721, 323);
+            treeView.TabIndex = 26;
+            // 
             // FrmDataSet
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -201,6 +209,7 @@
             BackColor = SystemColors.InactiveCaption;
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(1776, 760);
+            Controls.Add(treeView);
             Controls.Add(btnEnviarArchivo);
             Controls.Add(cmbSortBy);
             Controls.Add(lblView);
@@ -242,5 +251,6 @@
         private Label lblView;
         private ComboBox cmbSortBy;
         private Button btnEnviarArchivo;
+        private TreeView treeView;
     }
 }

@@ -89,10 +89,51 @@ namespace ProyectoFinal4S
 
         private void btnOpen_Click(object sender, EventArgs e)
         {
+            //OpenFileDialog openFileDialog = new OpenFileDialog
+            //{
+            //    Filter = "CSV and TXT files (*.csv;*.txt)|*.csv;*.txt",
+            //    Title = "Open file"
+            //};
+
+            //if (openFileDialog.ShowDialog() != DialogResult.OK) return;
+
+            //string filePath = openFileDialog.FileName;
+
+            //try
+            //{
+            //    var lines = File.ReadAllLines(filePath);
+
+            //    dgvData.Rows.Clear();
+            //    dgvData.Columns.Clear();
+            //    allRows.Clear();
+
+            //    if (lines.Length > 0)
+            //    {
+            //        char delimiter = ',';
+            //        var headers = lines[0].Split(delimiter);
+            //        foreach (var header in headers)
+            //        {
+            //            dgvData.Columns.Add(header, header);
+            //        }
+
+            //        for (int i = 1; i < lines.Length; i++)
+            //        {
+            //            var row = lines[i].Split(delimiter);
+            //            allRows.Add(row);
+            //        }
+
+            //        DisplayRows(allRows);
+            //        LlenarTreeView(allRows); // Llenar el TreeView con los datos
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show("Error loading data: " + ex.Message);
+            //}
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 Filter = "CSV and TXT files (*.csv;*.txt)|*.csv;*.txt",
-                Title = "Open file"
+                Title = "Abrir archivo"
             };
 
             if (openFileDialog.ShowDialog() != DialogResult.OK) return;
@@ -109,26 +150,57 @@ namespace ProyectoFinal4S
 
                 if (lines.Length > 0)
                 {
-                    char delimiter = ',';
+                    char delimiter = ',';  // O cualquier delimitador que estés utilizando
                     var headers = lines[0].Split(delimiter);
+
+                    // Asegúrate de que las columnas necesarias estén presentes en el archivo CSV
+                    if (!headers.Contains("class") || !headers.Contains("objid") || !headers.Contains("ra") || !headers.Contains("dec"))
+                    {
+                        MessageBox.Show("El archivo CSV no contiene las columnas necesarias (class, objid, ra, dec).");
+                        return;
+                    }
+
+                    // Mostrar los encabezados para depuración
+                    foreach (var header in headers)
+                    {
+                        Console.WriteLine("Encabezado: " + header); // Esto imprimirá todos los encabezados en la consola
+                    }
+
+                    // Agregar las columnas al DataGridView
                     foreach (var header in headers)
                     {
                         dgvData.Columns.Add(header, header);
                     }
 
+                    // Validar las filas y asegurarse de que el número de columnas es correcto
                     for (int i = 1; i < lines.Length; i++)
                     {
                         var row = lines[i].Split(delimiter);
-                        allRows.Add(row);
+
+                        // Verificar que la fila tenga el número correcto de columnas
+                        if (row.Length == headers.Length)
+                        {
+                            allRows.Add(row);
+                        }
+                        else
+                        {
+                            // Si la fila no tiene el número esperado de columnas, muestra un mensaje
+                            MessageBox.Show($"Fila {i + 1} tiene un número incorrecto de columnas.");
+                        }
                     }
 
+                    // Mostrar los datos en el DataGridView
                     DisplayRows(allRows);
+
+                    // Llenar el TreeView después de cargar los datos
+                    LlenarTreeView(allRows);  // Llamada a la función para llenar el TreeView
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error loading data: " + ex.Message);
+                MessageBox.Show("Error al cargar los datos: " + ex.Message);
             }
+
         }
 
         // Función para mostrar filas en DataGridView
@@ -416,6 +488,117 @@ namespace ProyectoFinal4S
                 MessageBox.Show("Error al enviar el correo: " + ex.Message);
             }
         }
+
+        private void LlenarTreeView(List<string[]> rows)
+        {
+            //treeView.Nodes.Clear(); // Limpiar los nodos existentes
+
+            //// Agrupar las filas por "class" (o cualquier otro campo que elijas)
+            //var agrupadoPorClase = rows.GroupBy(row => row[ObtenerIndiceColumna("class")]).ToList();
+
+            //foreach (var grupoClase in agrupadoPorClase)
+            //{
+            //    // Crear el nodo raíz basado en la clase
+            //    TreeNode nodoClase = new TreeNode(grupoClase.Key); // "class" (por ejemplo, "QSO")
+            //    treeView.Nodes.Add(nodoClase);
+
+            //    // Para cada clase, agrupar por ubicación (RA, Dec)
+            //    var agrupadoPorUbicacion = grupoClase.GroupBy(row => new { RA = row[ObtenerIndiceColumna("RA")], Dec = row[ObtenerIndiceColumna("Dec")] }).ToList();
+
+            //    foreach (var grupoUbicacion in agrupadoPorUbicacion)
+            //    {
+            //        // Crear un nodo para la ubicación
+            //        TreeNode nodoUbicacion = new TreeNode($"RA: {grupoUbicacion.Key.RA}, Dec: {grupoUbicacion.Key.Dec}");
+            //        nodoClase.Nodes.Add(nodoUbicacion);
+
+            //        // Agregar detalles adicionales o IDs de objetos debajo del nodo de ubicación
+            //        foreach (var item in grupoUbicacion)
+            //        {
+            //            string objectID = item[ObtenerIndiceColumna("objectID")]; // Ejemplo de ID de objeto
+            //            TreeNode nodoObjeto = new TreeNode($"Object ID: {objectID}");
+            //            nodoUbicacion.Nodes.Add(nodoObjeto);
+            //        }
+            //    }
+            //}
+
+
+
+            //treeView.Nodes.Clear(); // Limpiar los nodos existentes
+
+            //// Agrupar las filas por "class" (o cualquier otro campo que elijas)
+            //var agrupadoPorClase = rows.GroupBy(row => row[ObtenerIndiceColumna("class")]).ToList();
+
+            //foreach (var grupoClase in agrupadoPorClase)
+            //{
+            //    // Crear el nodo raíz basado en la clase
+            //    TreeNode nodoClase = new TreeNode(grupoClase.Key); // "class" (por ejemplo, "QSO")
+            //    treeView.Nodes.Add(nodoClase);
+
+            //    // Agrupar por "Redshift" solo si el valor de Redshift es positivo
+            //    var agrupadoPorRedshift = grupoClase
+            //        .Where(row => double.TryParse(row[ObtenerIndiceColumna("Redshift")], out double redshift) && redshift > 0) // Filtrar por Redshift positivo
+            //        .GroupBy(row => row[ObtenerIndiceColumna("Redshift")])
+            //        .ToList();
+
+            //    foreach (var grupoRedshift in agrupadoPorRedshift)
+            //    {
+            //        // Crear un nodo para Redshift
+            //        TreeNode nodoRedshift = new TreeNode($"Redshift: {grupoRedshift.Key}");
+            //        nodoClase.Nodes.Add(nodoRedshift);
+
+            //        // Agregar el Object ID para cada objeto
+            //        foreach (var item in grupoRedshift)
+            //        {
+            //            string objectID = item[ObtenerIndiceColumna("objectID")]; // Ejemplo de ID de objeto
+            //            TreeNode nodoObjeto = new TreeNode($"Object ID: {objectID}");
+            //            nodoRedshift.Nodes.Add(nodoObjeto);
+            //        }
+            //    }
+            //}
+
+            treeView.Nodes.Clear(); // Limpiar los nodos existentes
+
+            // Agrupar las filas por "class" (o cualquier otro campo que elijas)
+            var agrupadoPorClase = rows.GroupBy(row => row[ObtenerIndiceColumna("class")]).ToList();
+
+            foreach (var grupoClase in agrupadoPorClase)
+            {
+                // Crear el nodo raíz basado en la clase
+                TreeNode nodoClase = new TreeNode(grupoClase.Key); // "class" (por ejemplo, "QSO", "STAR", "GALAXY")
+                treeView.Nodes.Add(nodoClase);
+
+                // Agrupar por "objid" (ID del objeto)
+                var agrupadoPorObjid = grupoClase
+                    .GroupBy(row => row[ObtenerIndiceColumna("objid")])
+                    .ToList();
+
+                foreach (var grupoObjid in agrupadoPorObjid)
+                {
+                    // Crear un nodo para el "objid"
+                    TreeNode nodoObjid = new TreeNode($"Objid: {grupoObjid.Key}");
+                    nodoClase.Nodes.Add(nodoObjid);
+
+                    // Agregar el RA y DEC bajo el objeto
+                    foreach (var item in grupoObjid)
+                    {
+                        string ra = item[ObtenerIndiceColumna("ra")]; // Right Ascension
+                        string dec = item[ObtenerIndiceColumna("dec")]; // Declination
+                        TreeNode nodoCoordenadas = new TreeNode($"RA: {ra}, DEC: {dec}");
+                        nodoObjid.Nodes.Add(nodoCoordenadas);
+                    }
+                }
+            }
+
+        }
+
+        // Función auxiliar para obtener el índice de una columna por su nombre
+        private int ObtenerIndiceColumna(string nombreColumna)
+        {
+            // Asumiendo que los datos provienen de un CSV y tienen encabezados
+            var encabezados = dgvData.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText).ToList();
+            return encabezados.IndexOf(nombreColumna);
+        }
+
 
         private void btnClearData_Click(object sender, EventArgs e)
         {
