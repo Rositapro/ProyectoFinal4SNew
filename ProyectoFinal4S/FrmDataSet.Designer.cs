@@ -43,6 +43,7 @@
             cmbViewOption = new ComboBox();
             lblView = new Label();
             cmbSortBy = new ComboBox();
+            btnEnviarArchivo = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvData).BeginInit();
             SuspendLayout();
             // 
@@ -83,7 +84,6 @@
             btnDelete.Size = new Size(112, 34);
             btnDelete.TabIndex = 13;
             btnDelete.Text = "Delete";
-            btnDelete.UseVisualStyleBackColor = true;
             btnDelete.Click += btnDelete_Click;
             // 
             // btnClearData
@@ -105,7 +105,6 @@
             btnSave.TabIndex = 15;
             btnSave.Text = "Save";
             btnSave.UseVisualStyleBackColor = true;
-            btnSave.Click += btnSave_Click;
             // 
             // cmbExportFormat
             // 
@@ -185,6 +184,16 @@
             cmbSortBy.Size = new Size(182, 33);
             cmbSortBy.TabIndex = 24;
             // 
+            // btnEnviarArchivo
+            // 
+            btnEnviarArchivo.Location = new Point(796, 658);
+            btnEnviarArchivo.Name = "btnEnviarArchivo";
+            btnEnviarArchivo.Size = new Size(112, 34);
+            btnEnviarArchivo.TabIndex = 25;
+            btnEnviarArchivo.Text = "Enviar";
+            btnEnviarArchivo.UseVisualStyleBackColor = true;
+            btnEnviarArchivo.Click += btnEnviarArchivo_Click;
+            // 
             // FrmDataSet
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -192,6 +201,7 @@
             BackColor = SystemColors.InactiveCaption;
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(1776, 760);
+            Controls.Add(btnEnviarArchivo);
             Controls.Add(cmbSortBy);
             Controls.Add(lblView);
             Controls.Add(cmbViewOption);
@@ -231,5 +241,6 @@
         private ComboBox cmbViewOption;
         private Label lblView;
         private ComboBox cmbSortBy;
+        private Button btnEnviarArchivo;
     }
 }

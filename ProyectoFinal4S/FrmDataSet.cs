@@ -1,23 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Xml.Linq;
-using System.Diagnostics;
+﻿using MailKit.Net.Smtp;
+//using iText.IO.Font.Constants;
+//using iText.Kernel.Font;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
-using iText.Kernel.Pdf.Canvas;
-using System.IO;
-using MailKit.Net.Smtp;
+//using iText.Layout.Properties;
 using MimeKit;
-using System.IO;
+using System.Data;
+using System.Diagnostics;
+using System.Text;
+using System.Text.Json;
+using System.Xml.Linq;
 
 namespace ProyectoFinal4S
 {
@@ -29,6 +22,8 @@ namespace ProyectoFinal4S
         public FrmDataSet()
         {
             InitializeComponent();
+
+
             // Evento para cambiar vista
             cmbViewOption.Items.Clear();
             cmbViewOption.Items.AddRange(new string[] { "Tabla", "Texto Plano" });
@@ -40,6 +35,7 @@ namespace ProyectoFinal4S
             this.Load += Form2_Load;
             btnFilterClass.Click += btnFilterClass_Click;
         }
+
         // Evento Load: llenar ComboBox con opciones de clase
         private void Form2_Load(object sender, EventArgs e)
         {
@@ -54,7 +50,6 @@ namespace ProyectoFinal4S
             cmbDeleteType.Items.Clear();
             cmbDeleteType.Items.AddRange(new string[] { "Fila", "Columna" });
             cmbDeleteType.SelectedIndex = 0;
-
         }
 
         // Método para convertir los datos a texto plano
@@ -73,6 +68,7 @@ namespace ProyectoFinal4S
             }
             return sb.ToString();
         }
+
         // Evento cambio de vista
         private void cmbViewOption_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -90,15 +86,16 @@ namespace ProyectoFinal4S
                 dgvData.Visible = true;
             }
         }
+
         private void btnOpen_Click(object sender, EventArgs e)
         {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "CSV and TXT files (*.csv;*.txt)|*.csv;*.txt",
+                Title = "Open file"
+            };
 
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "CSV and TXT files (*.csv;*.txt)|*.csv;*.txt";
-            openFileDialog.Title = "Open file";
-
-            if (openFileDialog.ShowDialog() != DialogResult.OK)
-                return;
+            if (openFileDialog.ShowDialog() != DialogResult.OK) return;
 
             string filePath = openFileDialog.FileName;
 
@@ -113,7 +110,6 @@ namespace ProyectoFinal4S
                 if (lines.Length > 0)
                 {
                     char delimiter = ',';
-
                     var headers = lines[0].Split(delimiter);
                     foreach (var header in headers)
                     {
@@ -133,8 +129,8 @@ namespace ProyectoFinal4S
             {
                 MessageBox.Show("Error loading data: " + ex.Message);
             }
-
         }
+
         // Función para mostrar filas en DataGridView
         private void DisplayRows(List<string[]> rows)
         {
@@ -144,20 +140,14 @@ namespace ProyectoFinal4S
                 dgvData.Rows.Add(row);
             }
         }
+
         private void btnFilterClass_Click(object sender, EventArgs e)
         {
             string filtroSeleccionado = cmbClassFilter.SelectedItem.ToString();
 
             // Buscar índice de la columna "class"
-            int indexClass = -1;
-            foreach (DataGridViewColumn col in dgvData.Columns)
-            {
-                if (col.HeaderText.Equals("class", StringComparison.OrdinalIgnoreCase))
-                {
-                    indexClass = col.Index;
-                    break;
-                }
-            }
+            int indexClass = dgvData.Columns.Cast<DataGridViewColumn>()
+                .FirstOrDefault(col => col.HeaderText.Equals("class", StringComparison.OrdinalIgnoreCase))?.Index ?? -1;
 
             if (indexClass == -1)
             {
@@ -183,98 +173,17 @@ namespace ProyectoFinal4S
 
         private void btnExport_Click(object sender, EventArgs e)
         {
-            //if (cmbExportFormat.SelectedItem == null)
-            //    return;
-
-            //string formato = cmbExportFormat.SelectedItem.ToString();
-
-            //SaveFileDialog saveFileDialog = new SaveFileDialog();
-            //switch (formato)
-            //{
-            //    case "CSV":
-            //        saveFileDialog.Filter = "CSV files (*.csv)|*.csv";
-            //        saveFileDialog.Title = "Exportar a CSV";
-            //        break;
-            //    case "TXT":
-            //        saveFileDialog.Filter = "TXT files (*.txt)|*.txt";
-            //        saveFileDialog.Title = "Exportar a TXT";
-            //        break;
-            //    case "JSON":
-            //        saveFileDialog.Filter = "JSON files (*.json)|*.json";
-            //        saveFileDialog.Title = "Exportar a JSON";
-            //        break;
-            //    case "XML":
-            //        saveFileDialog.Filter = "XML files (*.xml)|*.xml";
-            //        saveFileDialog.Title = "Exportar a XML";
-            //        break;
-            //}
-
-            //if (saveFileDialog.ShowDialog() != DialogResult.OK)
-            //    return;
-
-            //string ruta = saveFileDialog.FileName;
-
-            //try
-            //{
-            //    switch (formato)
-            //    {
-            //        case "CSV":
-            //            GuardarArchivoCSV(ruta);
-            //            break;
-            //        case "TXT":
-            //            GuardarArchivoTXT(ruta);
-            //            break;
-            //        case "JSON":
-            //            ExportarAJSON(ruta);
-            //            break;
-            //        case "XML":
-            //            ExportarAXML(ruta);
-            //            break;
-            //    }
-            //    MessageBox.Show($"Archivo exportado correctamente en formato {formato}.");
-
-            //    // Abrir el archivo con la aplicación predeterminada
-            //    Process.Start(new ProcessStartInfo()
-            //    {
-            //        FileName = ruta,
-            //        UseShellExecute = true
-            //    });
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show("Error exportando archivo: " + ex.Message);
-            //}
-
-
             if (cmbExportFormat.SelectedItem == null)
                 return;
 
             string formato = cmbExportFormat.SelectedItem.ToString();
 
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            switch (formato)
+            // Configuración del cuadro de diálogo para guardar archivo
+            SaveFileDialog saveFileDialog = new SaveFileDialog
             {
-                case "CSV":
-                    saveFileDialog.Filter = "CSV files (*.csv)|*.csv";
-                    saveFileDialog.Title = "Exportar a CSV";
-                    break;
-                case "TXT":
-                    saveFileDialog.Filter = "TXT files (*.txt)|*.txt";
-                    saveFileDialog.Title = "Exportar a TXT";
-                    break;
-                case "JSON":
-                    saveFileDialog.Filter = "JSON files (*.json)|*.json";
-                    saveFileDialog.Title = "Exportar a JSON";
-                    break;
-                case "XML":
-                    saveFileDialog.Filter = "XML files (*.xml)|*.xml";
-                    saveFileDialog.Title = "Exportar a XML";
-                    break;
-                case "PDF":
-                    saveFileDialog.Filter = "PDF files (*.pdf)|*.pdf";
-                    saveFileDialog.Title = "Exportar a PDF";
-                    break;
-            }
+                Title = $"Exportar a {formato}",
+                Filter = GetExportFilter(formato)  // Dependiendo del formato seleccionado
+            };
 
             if (saveFileDialog.ShowDialog() != DialogResult.OK)
                 return;
@@ -302,39 +211,10 @@ namespace ProyectoFinal4S
                         break;
                 }
 
-                // Enviar por correo (si es necesario)
-                EnviarCorreo("destinatario@example.com", "Archivo Exportado", "Aquí está el archivo PDF.", ruta);
-
+                // Confirmación de exportación
                 MessageBox.Show($"Archivo exportado correctamente en formato {formato}.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error exportando archivo: " + ex.Message);
-            }
-        }
 
-        private void btnSave_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "CSV files (*.csv)|*.csv|TXT files (*.txt)|*.txt";
-            saveFileDialog.Title = "Save file";
-
-            if (saveFileDialog.ShowDialog() != DialogResult.OK)
-                return;
-
-            string ruta = saveFileDialog.FileName;
-            string ext = Path.GetExtension(ruta).ToLower();
-
-            try
-            {
-                if (ext == ".txt")
-                    GuardarArchivoTXT(ruta);
-                else
-                    GuardarArchivoCSV(ruta);
-
-                MessageBox.Show("Archivo guardado correctamente.");
-
-                // Abrir el archivo guardado automáticamente
+                // Abrir el archivo automáticamente
                 Process.Start(new ProcessStartInfo()
                 {
                     FileName = ruta,
@@ -343,16 +223,30 @@ namespace ProyectoFinal4S
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error guardando archivo: " + ex.Message);
+                MessageBox.Show("Error exportando archivo: " + ex.Message);
             }
+        }
+
+        private string GetExportFilter(string formato)
+        {
+            return formato switch
+            {
+                "CSV" => "CSV files (*.csv)|*.csv",
+                "TXT" => "TXT files (*.txt)|*.txt",
+                "JSON" => "JSON files (*.json)|*.json",
+                "XML" => "XML files (*.xml)|*.xml",
+                "PDF" => "PDF files (*.pdf)|*.pdf",
+                _ => throw new InvalidOperationException("Unknown format.")
+            };
+
         }
 
         public void GuardarArchivoCSV(string ruta)
         {
-            var lines = new List<string>();
-
-            var headers = dgvData.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText);
-            lines.Add(string.Join(",", headers));
+            var lines = new List<string>
+            {
+                string.Join(",", dgvData.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText))
+            };
 
             foreach (DataGridViewRow row in dgvData.Rows)
             {
@@ -365,6 +259,7 @@ namespace ProyectoFinal4S
 
             File.WriteAllLines(ruta, lines);
         }
+
         private string EscapeForCsv(string value)
         {
             if (value.Contains(",") || value.Contains("\"") || value.Contains("\n"))
@@ -377,10 +272,10 @@ namespace ProyectoFinal4S
 
         public void GuardarArchivoTXT(string ruta)
         {
-            var lines = new List<string>();
-
-            var headers = dgvData.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText);
-            lines.Add(string.Join("\t", headers));
+            var lines = new List<string>
+            {
+                string.Join("\t", dgvData.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText))
+            };
 
             foreach (DataGridViewRow row in dgvData.Rows)
             {
@@ -440,6 +335,132 @@ namespace ProyectoFinal4S
             doc.Save(ruta);
         }
 
+        private void ExportarAPDF(string ruta)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ruta))
+                {
+                    MessageBox.Show("Ruta de archivo no válida.");
+                    return;
+                }
+
+                using (var writer = new PdfWriter(ruta))
+                using (var pdf = new PdfDocument(writer))
+                using (var document = new Document(pdf))
+                {
+                    Table table = new Table(dgvData.Columns.Count);
+
+                    // Encabezados
+                    foreach (DataGridViewColumn col in dgvData.Columns)
+                    {
+                        table.AddHeaderCell(new Paragraph(col.HeaderText));
+                    }
+
+                    // Filas
+                    foreach (DataGridViewRow row in dgvData.Rows)
+                    {
+                        if (row.IsNewRow) continue;
+
+                        foreach (DataGridViewCell cell in row.Cells)
+                        {
+                            table.AddCell(new Paragraph(cell.Value?.ToString() ?? ""));
+                        }
+                    }
+
+                    document.Add(table);
+                }
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("El archivo está en uso o no se puede acceder. Ciérralo si está abierto.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al exportar a PDF: " + ex.Message);
+            }
+        }
+        // Función para enviar correo con archivo adjunto usando MailKit
+        private void EnviarCorreo(string toEmail, string subject, string body, string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                MessageBox.Show("El archivo adjunto no existe.");
+                return;
+            }
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("Rosalinda", "rosalindacedillo2017@gmail.com"));
+            message.To.Add(MailboxAddress.Parse(toEmail));
+            message.Subject = subject;
+
+            var builder = new BodyBuilder { TextBody = body };
+            builder.Attachments.Add(filePath);
+            message.Body = builder.ToMessageBody();
+
+            try
+            {
+                using (var client = new SmtpClient())
+                {
+                    client.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                    client.Authenticate("rosalindacedillo2017@gmail.com", "rqcs laqq upjg rypk");
+
+                    client.Send(message);
+                    client.Disconnect(true);
+                }
+
+                MessageBox.Show("Correo enviado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al enviar el correo: " + ex.Message);
+            }
+        }
+
+        private void btnClearData_Click(object sender, EventArgs e)
+        {
+            var confirmResult = MessageBox.Show("¿Seguro que quieres limpiar toda la tabla?",
+                                       "Confirmar limpieza",
+                                       MessageBoxButtons.YesNo);
+
+            if (confirmResult == DialogResult.Yes)
+            {
+                dgvData.Rows.Clear();
+                dgvData.Columns.Clear();
+                allRows.Clear();
+            }
+        }
+
+        private void btnEnviarArchivo_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                // Mostrar todos los tipos de archivos que has permitido para exportar
+                Filter = "CSV files (*.csv)|*.csv|TXT files (*.txt)|*.txt|JSON files (*.json)|*.json|XML files (*.xml)|*.xml|PDF files (*.pdf)|*.pdf",
+                Title = "Seleccionar archivo para enviar por correo"
+            };
+
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            string ruta = openFileDialog.FileName;
+
+            if (!File.Exists(ruta))
+            {
+                MessageBox.Show("El archivo seleccionado no existe.");
+                return;
+            }
+
+            try
+            {
+                EnviarCorreo("rosalindacedillo2017@gmail.com", "Archivo Exportado", "Aquí está el archivo exportado.", ruta);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al enviar el correo: " + ex.Message);
+            }
+        }
+
         private void btnDelete_Click(object sender, EventArgs e)
         {
             if (dgvData.CurrentCell == null)
@@ -481,99 +502,6 @@ namespace ProyectoFinal4S
                         allRows[i] = listRow.ToArray();
                     }
                 }
-            }
-        }
-
-        private void btnClearData_Click(object sender, EventArgs e)
-        {
-            var confirmResult = MessageBox.Show("¿Seguro que quieres limpiar toda la tabla?",
-                                       "Confirmar limpieza",
-                                       MessageBoxButtons.YesNo);
-
-            if (confirmResult == DialogResult.Yes)
-            {
-                dgvData.Rows.Clear();
-                dgvData.Columns.Clear();
-                allRows.Clear();
-            }
-        }
-        private void ExportarAPDF(string ruta)
-        {
-            try
-            {
-                // Crear un nuevo documento PDF
-                using (PdfWriter writer = new PdfWriter(ruta))
-                {
-                    using (PdfDocument pdf = new PdfDocument(writer))
-                    {
-                        Document document = new Document(pdf);
-
-                        // Crear una tabla en el PDF
-                        Table table = new Table(dgvData.Columns.Count);
-
-                        // Agregar encabezados de columnas
-                        foreach (DataGridViewColumn col in dgvData.Columns)
-                        {
-                            table.AddCell(new Cell().Add(new Paragraph(col.HeaderText)));
-                        }
-
-                        // Agregar las filas de datos
-                        foreach (DataGridViewRow row in dgvData.Rows)
-                        {
-                            if (!row.IsNewRow)  // Evitar la fila vacía
-                            {
-                                foreach (DataGridViewCell cell in row.Cells)
-                                {
-                                    table.AddCell(new Cell().Add(new Paragraph(cell.Value?.ToString() ?? "")));
-                                }
-                            }
-                        }
-
-                        // Agregar la tabla al documento PDF
-                        document.Add(table);
-                    }
-                }
-
-                MessageBox.Show("PDF exportado correctamente.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error al exportar a PDF: " + ex.Message);
-            }
-        }
-
-        // Función para enviar correo con archivo adjunto usando MailKit
-        private void EnviarCorreo(string toEmail, string subject, string body, string filePath)
-        {
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("Rosalinda", "rosalindacedillo2017@gmail.com"));
-            message.To.Add(new MailboxAddress("", toEmail));
-            message.Subject = subject;
-
-            var bodyBuilder = new BodyBuilder { TextBody = body };
-
-            // Adjuntar el archivo PDF
-            bodyBuilder.Attachments.Add(filePath);
-
-            message.Body = bodyBuilder.ToMessageBody();
-
-            try
-            {
-                using (var client = new SmtpClient())
-                {
-                    client.Connect("smtp.gmail.com", 587, false);
-                    client.Authenticate("rosalindacedillo2017@gmail.com", "rqcs laqq upjg rypk"); // Usa la contraseña de aplicación
-
-                    // Enviar el correo
-                    client.Send(message);
-                    client.Disconnect(true);
-                }
-
-                MessageBox.Show("Correo enviado correctamente.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error al enviar el correo: " + ex.Message);
             }
         }
     }
