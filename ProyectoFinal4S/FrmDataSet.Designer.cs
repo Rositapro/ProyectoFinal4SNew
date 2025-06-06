@@ -33,7 +33,7 @@
             cmbDeleteType = new ComboBox();
             btnDelete = new Button();
             btnClearData = new Button();
-            btnSave = new Button();
+            btnsqlDate = new Button();
             cmbExportFormat = new ComboBox();
             btnExport = new Button();
             cmbClassFilter = new ComboBox();
@@ -45,6 +45,9 @@
             cmbSortBy = new ComboBox();
             btnEnviarArchivo = new Button();
             treeView = new TreeView();
+            btnSaveSqlChanges = new Button();
+            progressBar1 = new ProgressBar();
+            lblProgress = new Label();
             ((System.ComponentModel.ISupportInitialize)dgvData).BeginInit();
             SuspendLayout();
             // 
@@ -97,15 +100,16 @@
             btnClearData.UseVisualStyleBackColor = true;
             btnClearData.Click += btnClearData_Click;
             // 
-            // btnSave
+            // btnsqlDate
             // 
-            btnSave.Location = new Point(142, 20);
-            btnSave.Margin = new Padding(4, 5, 4, 5);
-            btnSave.Name = "btnSave";
-            btnSave.Size = new Size(112, 34);
-            btnSave.TabIndex = 15;
-            btnSave.Text = "Save";
-            btnSave.UseVisualStyleBackColor = true;
+            btnsqlDate.Location = new Point(142, 20);
+            btnsqlDate.Margin = new Padding(4, 5, 4, 5);
+            btnsqlDate.Name = "btnsqlDate";
+            btnsqlDate.Size = new Size(112, 34);
+            btnsqlDate.TabIndex = 15;
+            btnsqlDate.Text = "Sql";
+            btnsqlDate.UseVisualStyleBackColor = true;
+            btnsqlDate.Click += btnsqlDate_Click;
             // 
             // cmbExportFormat
             // 
@@ -202,6 +206,34 @@
             treeView.Size = new Size(721, 323);
             treeView.TabIndex = 26;
             // 
+            // btnSaveSqlChanges
+            // 
+            btnSaveSqlChanges.Location = new Point(270, 20);
+            btnSaveSqlChanges.Margin = new Padding(4, 5, 4, 5);
+            btnSaveSqlChanges.Name = "btnSaveSqlChanges";
+            btnSaveSqlChanges.Size = new Size(112, 34);
+            btnSaveSqlChanges.TabIndex = 27;
+            btnSaveSqlChanges.Text = "changes";
+            btnSaveSqlChanges.UseVisualStyleBackColor = true;
+            btnSaveSqlChanges.Click += btnSaveSqlChanges_Click;
+            // 
+            // progressBar1
+            // 
+            progressBar1.Location = new Point(567, 76);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(232, 34);
+            progressBar1.TabIndex = 28;
+            progressBar1.Visible = false;
+            // 
+            // lblProgress
+            // 
+            lblProgress.AutoSize = true;
+            lblProgress.Location = new Point(805, 80);
+            lblProgress.Name = "lblProgress";
+            lblProgress.Size = new Size(59, 25);
+            lblProgress.TabIndex = 29;
+            lblProgress.Text = "label1";
+            // 
             // FrmDataSet
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -209,6 +241,9 @@
             BackColor = SystemColors.InactiveCaption;
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(1776, 760);
+            Controls.Add(lblProgress);
+            Controls.Add(progressBar1);
+            Controls.Add(btnSaveSqlChanges);
             Controls.Add(treeView);
             Controls.Add(btnEnviarArchivo);
             Controls.Add(cmbSortBy);
@@ -220,7 +255,7 @@
             Controls.Add(cmbClassFilter);
             Controls.Add(btnExport);
             Controls.Add(cmbExportFormat);
-            Controls.Add(btnSave);
+            Controls.Add(btnsqlDate);
             Controls.Add(btnClearData);
             Controls.Add(btnDelete);
             Controls.Add(cmbDeleteType);
@@ -240,7 +275,7 @@
         private ComboBox cmbDeleteType;
         private Button btnDelete;
         private Button btnClearData;
-        private Button btnSave;
+        private Button btnsqlDate;
         private ComboBox cmbExportFormat;
         private Button btnExport;
         private ComboBox cmbClassFilter;
@@ -252,5 +287,8 @@
         private ComboBox cmbSortBy;
         private Button btnEnviarArchivo;
         private TreeView treeView;
+        private Button btnSaveSqlChanges;
+        private ProgressBar progressBar1;
+        private Label lblProgress;
     }
 }

@@ -1,4 +1,6 @@
-﻿using MailKit.Net.Smtp;
+﻿using System.Data;
+using Microsoft.Data.SqlClient;
+using MailKit.Net.Smtp;
 //using iText.IO.Font.Constants;
 //using iText.Kernel.Font;
 using iText.Kernel.Pdf;
@@ -16,22 +18,19 @@ namespace ProyectoFinal4S
 {
     public partial class FrmDataSet : Form
     {
-        // Lista para guardar todas las filas leídas del CSV 
-
+        // Lista para guardar todas las filas leídas del CSV o desde SQL
         private List<string[]> allRows = new List<string[]>();
+
+        // Cadena de conexión con la base de datos SQL Server
+        string connectionString = @"Server=localhost\SQLEXPRESS;Database=NASA;Trusted_connection=yes; TrustServerCertificate=true";
         public FrmDataSet()
         {
             InitializeComponent();
-
-
-            // Evento para cambiar vista
             cmbViewOption.Items.Clear();
             cmbViewOption.Items.AddRange(new string[] { "Tabla", "Texto Plano" });
-            cmbViewOption.SelectedIndex = 0; // Por defecto tabla
+            cmbViewOption.SelectedIndex = 0;
             cmbViewOption.SelectedIndexChanged += cmbViewOption_SelectedIndexChanged;
-
             txtPlainText.Visible = false;
-
             this.Load += Form2_Load;
             btnFilterClass.Click += btnFilterClass_Click;
         }
@@ -86,50 +85,55 @@ namespace ProyectoFinal4S
                 dgvData.Visible = true;
             }
         }
+        private void CargarDatosDesdeSQL()
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Consulta SQL para obtener todos los registros de la tabla dbo.Skyserver
+                    string query = "SELECT * FROM dbo.Skyserver";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        dgvData.Rows.Clear();
+                        dgvData.Columns.Clear();
+                        allRows.Clear();  // Limpiar los datos almacenados en memoria
+
+                        // Agregar las columnas al DataGridView
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            dgvData.Columns.Add(reader.GetName(i), reader.GetName(i));
+                        }
+
+                        // Cargar las filas en allRows y en el DataGridView
+                        while (reader.Read())
+                        {
+                            var row = new string[reader.FieldCount];  // Crear un array de string[] para cada fila
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                row[i] = reader[i].ToString();  // Convertir cada valor a string
+                            }
+
+                            allRows.Add(row);  // Guardar la fila como string[] en allRows
+                            dgvData.Rows.Add(row);  // Mostrar la fila en el DataGridView
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al cargar los datos desde la base de datos: " + ex.Message);
+            }
+        }
+
+
 
         private void btnOpen_Click(object sender, EventArgs e)
         {
-            //OpenFileDialog openFileDialog = new OpenFileDialog
-            //{
-            //    Filter = "CSV and TXT files (*.csv;*.txt)|*.csv;*.txt",
-            //    Title = "Open file"
-            //};
-
-            //if (openFileDialog.ShowDialog() != DialogResult.OK) return;
-
-            //string filePath = openFileDialog.FileName;
-
-            //try
-            //{
-            //    var lines = File.ReadAllLines(filePath);
-
-            //    dgvData.Rows.Clear();
-            //    dgvData.Columns.Clear();
-            //    allRows.Clear();
-
-            //    if (lines.Length > 0)
-            //    {
-            //        char delimiter = ',';
-            //        var headers = lines[0].Split(delimiter);
-            //        foreach (var header in headers)
-            //        {
-            //            dgvData.Columns.Add(header, header);
-            //        }
-
-            //        for (int i = 1; i < lines.Length; i++)
-            //        {
-            //            var row = lines[i].Split(delimiter);
-            //            allRows.Add(row);
-            //        }
-
-            //        DisplayRows(allRows);
-            //        LlenarTreeView(allRows); // Llenar el TreeView con los datos
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show("Error loading data: " + ex.Message);
-            //}
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 Filter = "CSV and TXT files (*.csv;*.txt)|*.csv;*.txt",
@@ -215,6 +219,33 @@ namespace ProyectoFinal4S
 
         private void btnFilterClass_Click(object sender, EventArgs e)
         {
+            //string filtroSeleccionado = cmbClassFilter.SelectedItem.ToString();
+
+            //// Buscar índice de la columna "class"
+            //int indexClass = dgvData.Columns.Cast<DataGridViewColumn>()
+            //    .FirstOrDefault(col => col.HeaderText.Equals("class", StringComparison.OrdinalIgnoreCase))?.Index ?? -1;
+
+            //if (indexClass == -1)
+            //{
+            //    MessageBox.Show("No se encontró la columna 'class'.");
+            //    return;
+            //}
+
+            //// Mostrar todas las filas si seleccionó "TODOS"
+            //if (filtroSeleccionado.Equals("TODOS", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    DisplayRows(allRows);
+            //    return;
+            //}
+
+            //// Filtrar filas que coincidan exactamente con el filtro seleccionado (insensible a mayúsculas)
+            //var filasFiltradas = allRows.Where(row =>
+            //    row.Length > indexClass &&
+            //    row[indexClass].Equals(filtroSeleccionado, StringComparison.OrdinalIgnoreCase)
+            //).ToList();
+
+            //DisplayRows(filasFiltradas);
+
             string filtroSeleccionado = cmbClassFilter.SelectedItem.ToString();
 
             // Buscar índice de la columna "class"
@@ -241,6 +272,7 @@ namespace ProyectoFinal4S
             ).ToList();
 
             DisplayRows(filasFiltradas);
+
         }
 
         private void btnExport_Click(object sender, EventArgs e)
@@ -491,70 +523,6 @@ namespace ProyectoFinal4S
 
         private void LlenarTreeView(List<string[]> rows)
         {
-            //treeView.Nodes.Clear(); // Limpiar los nodos existentes
-
-            //// Agrupar las filas por "class" (o cualquier otro campo que elijas)
-            //var agrupadoPorClase = rows.GroupBy(row => row[ObtenerIndiceColumna("class")]).ToList();
-
-            //foreach (var grupoClase in agrupadoPorClase)
-            //{
-            //    // Crear el nodo raíz basado en la clase
-            //    TreeNode nodoClase = new TreeNode(grupoClase.Key); // "class" (por ejemplo, "QSO")
-            //    treeView.Nodes.Add(nodoClase);
-
-            //    // Para cada clase, agrupar por ubicación (RA, Dec)
-            //    var agrupadoPorUbicacion = grupoClase.GroupBy(row => new { RA = row[ObtenerIndiceColumna("RA")], Dec = row[ObtenerIndiceColumna("Dec")] }).ToList();
-
-            //    foreach (var grupoUbicacion in agrupadoPorUbicacion)
-            //    {
-            //        // Crear un nodo para la ubicación
-            //        TreeNode nodoUbicacion = new TreeNode($"RA: {grupoUbicacion.Key.RA}, Dec: {grupoUbicacion.Key.Dec}");
-            //        nodoClase.Nodes.Add(nodoUbicacion);
-
-            //        // Agregar detalles adicionales o IDs de objetos debajo del nodo de ubicación
-            //        foreach (var item in grupoUbicacion)
-            //        {
-            //            string objectID = item[ObtenerIndiceColumna("objectID")]; // Ejemplo de ID de objeto
-            //            TreeNode nodoObjeto = new TreeNode($"Object ID: {objectID}");
-            //            nodoUbicacion.Nodes.Add(nodoObjeto);
-            //        }
-            //    }
-            //}
-
-
-
-            //treeView.Nodes.Clear(); // Limpiar los nodos existentes
-
-            //// Agrupar las filas por "class" (o cualquier otro campo que elijas)
-            //var agrupadoPorClase = rows.GroupBy(row => row[ObtenerIndiceColumna("class")]).ToList();
-
-            //foreach (var grupoClase in agrupadoPorClase)
-            //{
-            //    // Crear el nodo raíz basado en la clase
-            //    TreeNode nodoClase = new TreeNode(grupoClase.Key); // "class" (por ejemplo, "QSO")
-            //    treeView.Nodes.Add(nodoClase);
-
-            //    // Agrupar por "Redshift" solo si el valor de Redshift es positivo
-            //    var agrupadoPorRedshift = grupoClase
-            //        .Where(row => double.TryParse(row[ObtenerIndiceColumna("Redshift")], out double redshift) && redshift > 0) // Filtrar por Redshift positivo
-            //        .GroupBy(row => row[ObtenerIndiceColumna("Redshift")])
-            //        .ToList();
-
-            //    foreach (var grupoRedshift in agrupadoPorRedshift)
-            //    {
-            //        // Crear un nodo para Redshift
-            //        TreeNode nodoRedshift = new TreeNode($"Redshift: {grupoRedshift.Key}");
-            //        nodoClase.Nodes.Add(nodoRedshift);
-
-            //        // Agregar el Object ID para cada objeto
-            //        foreach (var item in grupoRedshift)
-            //        {
-            //            string objectID = item[ObtenerIndiceColumna("objectID")]; // Ejemplo de ID de objeto
-            //            TreeNode nodoObjeto = new TreeNode($"Object ID: {objectID}");
-            //            nodoRedshift.Nodes.Add(nodoObjeto);
-            //        }
-            //    }
-            //}
 
             treeView.Nodes.Clear(); // Limpiar los nodos existentes
 
@@ -686,6 +654,77 @@ namespace ProyectoFinal4S
                     }
                 }
             }
+        }
+        private void btnsqlDate_Click(object sender, EventArgs e)
+        {
+            CargarDatosDesdeSQL();
+        }
+
+        private void btnSaveSqlChanges_Click(object sender, EventArgs e)
+        {
+            GuardarDatosEnSQL();
+        }
+        private void GuardarDatosEnSQL()
+        {
+            try
+            {
+                // Hacer que la barra de progreso sea visible y establecer su valor inicial
+                progressBar1.Visible = true;
+                progressBar1.Value = 0;
+                progressBar1.Maximum = dgvData.Rows.Count - 1; // Establecer el máximo al número de filas del DataGridView
+
+                // Mensaje de progreso
+                lblProgress.Text = "Guardando datos..."; // Asumiendo que tienes un Label llamado lblProgress
+
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Recorrer las filas del DataGridView y realizar la actualización
+                    foreach (DataGridViewRow row in dgvData.Rows)
+                    {
+                        if (!row.IsNewRow) // Asegurarse de no modificar la fila vacía
+                        {
+                            string objidValue = row.Cells["objid"].Value?.ToString();
+                            string classValue = row.Cells["class"].Value?.ToString();
+                            string raValue = row.Cells["ra"].Value?.ToString();
+                            string decValue = row.Cells["dec"].Value?.ToString();
+
+                            string query = "UPDATE dbo.Skyserver SET class = @classValue, ra = @raValue, dec = @decValue WHERE objid = @objidValue";
+
+                            using (SqlCommand command = new SqlCommand(query, connection))
+                            {
+                                // Usar parámetros para evitar inyecciones SQL
+                                command.Parameters.AddWithValue("@classValue", classValue);
+                                command.Parameters.AddWithValue("@raValue", raValue);
+                                command.Parameters.AddWithValue("@decValue", decValue);
+                                command.Parameters.AddWithValue("@objidValue", objidValue);
+
+                                // Ejecutar la actualización
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
+                        // Actualizar el valor de la barra de progreso
+                        progressBar1.Value += 1;
+                    }
+
+                    MessageBox.Show("Datos guardados correctamente en la base de datos.");
+                    lblProgress.Text = "Guardado completado."; // Actualizar el texto del Label con el mensaje de éxito
+
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al guardar los datos en la base de datos: " + ex.Message);
+                lblProgress.Text = "Error al guardar los datos."; // Mensaje en caso de error
+            }
+            finally
+            {
+                // Ocultar la barra de progreso al terminar
+                progressBar1.Visible = false;
+            }
+
         }
     }
 }
